@@ -1,7 +1,7 @@
 #Instance Controllers
 resource "aws_instance" "kubernetes_controllers" {
   count         = 3
-  ami           = "ami-05b5a865c3579bbc4" # Replace with the desired AMI ID
+  ami           = "ami-05b5a865c3579bbc4" 
   instance_type = "t2.micro"
   key_name      = "kubernetes"
   subnet_id     = aws_subnet.kubernetes_subnet.id
