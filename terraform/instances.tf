@@ -10,7 +10,7 @@ resource "aws_instance" "kubernetes_controllers" {
               name=controller-${count.index}
               EOF
   root_block_device {
-    volume_size = 8
+    volume_size = 30
   }
   tags = {
     Name = "controller-${count.index}"
@@ -35,7 +35,7 @@ resource "aws_instance" "kubernetes_workers" {
               EOF
   # Taille du volume principal en Go
   root_block_device {
-    volume_size = 8                                     
+    volume_size = 30                                     
   }
 
   # Tags pour identifier chaque instance EC2

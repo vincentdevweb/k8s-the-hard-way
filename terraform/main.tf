@@ -65,7 +65,7 @@ resource "aws_security_group" "kubernetes_security_group" {
 
   ingress {
     from_port   = 0                                # Port de début de la plage de ports autorisée
-    to_port     = 65535                            # Port de fin de la plage de ports autorisée
+    to_port     = 0                            # Port de fin de la plage de ports autorisée
     protocol    = "all"                            # Protocole autorisé (TCP dans ce cas)
     cidr_blocks = ["10.0.0.0/16", "10.200.0.0/16"] # Plages IP autorisées
   }
@@ -92,8 +92,8 @@ resource "aws_security_group" "kubernetes_security_group" {
   }
 
   ingress {
-    from_port   = -1 # Autoriser le trafic ICMP (ping)
-    to_port     = -1
+    from_port   = 0 # Autoriser le trafic ICMP (ping)
+    to_port     = 0
     protocol    = "icmp"
     cidr_blocks = ["0.0.0.0/0"]
   }
