@@ -20,22 +20,23 @@ provider "aws" {
 
 # Create a VPC
 resource "aws_vpc" "kubernetes_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = "10.0.0.0/16" # 10.0.X.X
   tags = {
-    Name = "kubernetes-the-hard-way"
+    Name = "k8s-the-hard-way"
   }
 }
 
 #On link of item VPC for subnet --- SUBNET
 resource "aws_subnet" "kubernetes_subnet" {
   vpc_id                  = aws_vpc.kubernetes_vpc.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "eu-west-3c" # Change this to your desired availability zone
-  map_public_ip_on_launch = true         #public ip au lancement 
+  cidr_block              = "10.0.1.0/24" # 10.0.1.X
+  availability_zone       = "eu-west-3c"  # Change this to your desired availability zone
+  map_public_ip_on_launch = true          #public ip au lancement 
   tags = {
     Name = "kubernetes"
   }
 }
+
 
 #Internet gateway link of item VPC aws_vpc (passerelle)
 resource "aws_internet_gateway" "kubernetes_igw" {
@@ -65,7 +66,7 @@ resource "aws_security_group" "kubernetes_security_group" {
 
   ingress {
     from_port   = 0                                # Port de début de la plage de ports autorisée
-    to_port     = 0                            # Port de fin de la plage de ports autorisée
+    to_port     = 0                                # Port de fin de la plage de ports autorisée
     protocol    = "all"                            # Protocole autorisé (TCP dans ce cas)
     cidr_blocks = ["10.0.0.0/16", "10.200.0.0/16"] # Plages IP autorisées
   }

@@ -1,5 +1,5 @@
 
-#load balancer
+#load balancer == OPTIMISATION
 # resource "aws_lb" "kubernetes_lb" {
 #   name               = "kubernetes"
 #   internal           = false
