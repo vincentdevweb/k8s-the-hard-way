@@ -1,2 +1,9 @@
-.terraform
+# Ignorer le répertoire .terraform et son contenu
+terraform/.terraform/
+
+# Ignorer les fichiers d'état Terraform depuis le dossier terraform
+terraform/*.tfstate*
+*.tfstate.backup
+
+# Ignorer le fichier .terraform.lock.hcl
 .terraform.lock.hcl

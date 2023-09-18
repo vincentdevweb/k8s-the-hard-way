@@ -60,18 +60,21 @@ resource "aws_route_table" "kubernetes_route_table" {
   }
 }
 
+# Associe sous réseaux et la table de routage 
 resource "aws_route_table_association" "kubernetes" {
-    subnet_id      = aws_subnet.kubernetes_subnet.id
-    route_table_id = aws_route_table.kubernetes_route_table.id
+  subnet_id      = aws_subnet.kubernetes_subnet.id
+  route_table_id = aws_route_table.kubernetes_route_table.id
 }
 
-#Sécurity group
+#Création d'un groupe de sécurité 
 resource "aws_security_group" "kubernetes_security_group" {
   name        = "kubernetes"                # Nom du groupe de sécurité
   description = "Kubernetes security group" # Description du groupe de sécurité
   vpc_id      = aws_vpc.kubernetes_vpc.id   # ID de la VPC à associer au groupe de sécurité
 
 }
+
+#Ajoute une régle spécifique à un groupe de sécuriter 
 resource "aws_security_group_rule" "kubernetes_rule_one" {
   type              = "egress"
   from_port         = 0                                               # Port de début de la plage de ports autorisée
@@ -85,7 +88,7 @@ resource "aws_security_group_rule" "kubernetes_rule_two" {
   type              = "ingress"
   from_port         = -1                               # Port de début de la plage de ports autorisée
   to_port           = -1                               # Port de fin de la plage de ports autorisée
-  protocol          = "-1"                             # Protocole autorisé (all dans ce cas)
+  protocol          = "-1"                             # Protocole autorisé ( "-1" = all dans ce cas)
   cidr_blocks       = ["10.0.0.0/16", "10.200.0.0/16"] # Plages IP autorisées
   security_group_id = aws_security_group.kubernetes_security_group.id
 
