@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.16.2"
+      version = "~> 5.17"
     }
   }
 }
@@ -20,9 +20,11 @@ provider "aws" {
 
 # Create a VPC
 resource "aws_vpc" "kubernetes_vpc" {
-  cidr_block = "10.0.0.0/16" # 10.0.X.X
+  cidr_block           = "10.0.0.0/16" # 10.0.X.X
+  enable_dns_support   = true
+  enable_dns_hostnames = true
   tags = {
-    Name = "k8s-the-hard-way"
+    Name = "kubernetes"
   }
 }
 
@@ -58,44 +60,73 @@ resource "aws_route_table" "kubernetes_route_table" {
   }
 }
 
+resource "aws_route_table_association" "kubernetes" {
+    subnet_id      = aws_subnet.kubernetes_subnet.id
+    route_table_id = aws_route_table.kubernetes_route_table.id
+}
+
 #Sécurity group
 resource "aws_security_group" "kubernetes_security_group" {
   name        = "kubernetes"                # Nom du groupe de sécurité
   description = "Kubernetes security group" # Description du groupe de sécurité
   vpc_id      = aws_vpc.kubernetes_vpc.id   # ID de la VPC à associer au groupe de sécurité
 
-  ingress {
-    from_port   = 0                                # Port de début de la plage de ports autorisée
-    to_port     = 0                                # Port de fin de la plage de ports autorisée
-    protocol    = "all"                            # Protocole autorisé (TCP dans ce cas)
-    cidr_blocks = ["10.0.0.0/16", "10.200.0.0/16"] # Plages IP autorisées
-  }
-
-  ingress {
-    from_port   = 22 # Autoriser le trafic SSH sur le port 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Autoriser depuis n'importe quelle adresse IP
-  }
-
-  ingress {
-    from_port   = 6443 # Autoriser le trafic sur le port 6443 (Kubernetes)
-    to_port     = 6443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 443 # Autoriser le trafic HTTPS sur le port 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    from_port   = 0 # Autoriser le trafic ICMP (ping)
-    to_port     = 0
-    protocol    = "icmp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
 }
+resource "aws_security_group_rule" "kubernetes_rule_one" {
+  type              = "egress"
+  from_port         = 0                                               # Port de début de la plage de ports autorisée
+  to_port           = 0                                               # Port de fin de la plage de ports autorisée
+  protocol          = "-1"                                            # Protocole autorisé (all dans ce cas)
+  cidr_blocks       = ["0.0.0.0/0"]                                   # Plages IP autorisées
+  security_group_id = aws_security_group.kubernetes_security_group.id # ID du group de sécu
+
+}
+resource "aws_security_group_rule" "kubernetes_rule_two" {
+  type              = "ingress"
+  from_port         = -1                               # Port de début de la plage de ports autorisée
+  to_port           = -1                               # Port de fin de la plage de ports autorisée
+  protocol          = "-1"                             # Protocole autorisé (all dans ce cas)
+  cidr_blocks       = ["10.0.0.0/16", "10.200.0.0/16"] # Plages IP autorisées
+  security_group_id = aws_security_group.kubernetes_security_group.id
+
+}
+resource "aws_security_group_rule" "kubernetes_rule_three" {
+  type              = "ingress"
+  from_port         = 22 # Autoriser le trafic SSH sur le port 22
+  to_port           = 22
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"] # Autoriser depuis n'importe quelle adresse IP
+  security_group_id = aws_security_group.kubernetes_security_group.id
+
+}
+resource "aws_security_group_rule" "kubernetes_rule_for" {
+  type              = "ingress"
+  from_port         = 6443 # Autoriser le trafic sur le port 6443 (Kubernetes)
+  to_port           = 6443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.kubernetes_security_group.id
+
+}
+
+resource "aws_security_group_rule" "kubernetes_rule_five" {
+  type              = "ingress"
+  from_port         = 443 # Autoriser le trafic HTTPS sur le port 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.kubernetes_security_group.id
+
+}
+
+resource "aws_security_group_rule" "kubernetes_rule_six" {
+  type              = "ingress"
+  from_port         = -1 # Autoriser le trafic ICMP (ping)
+  to_port           = -1
+  protocol          = "icmp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.kubernetes_security_group.id
+}
+
+
+
